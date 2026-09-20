@@ -19,7 +19,7 @@
 #include <cctype>
 #include <cmath>
 
-namespace Tunings
+namespace TuningsSfz
 {
     static double locale_atof(const char* s)
     {

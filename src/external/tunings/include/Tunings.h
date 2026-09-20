@@ -35,7 +35,7 @@
 #include <memory>
 #include <array>
 
-namespace Tunings
+namespace TuningsSfz
 {
     static constexpr double MIDI_0_FREQ = 8.17579891564371; // or 440.0 * pow( 2.0, - (69.0/12.0 ) )
 
@@ -242,4 +242,18 @@ namespace Tunings
         std::array<int, N> scalepositiontable;
     };
 
-} // namespace Tunings
+} // namespace TuningsSfz
+
+// Bag-O-Synths: sfizz and Surge XT BOTH vendor the Surge Synth Team tuning library,
+// at different versions with incompatible layouts -- sfizz's Scale holds a fixed
+// Tone array and its Tuning has no notationMapping; Surge's Scale holds vectors
+// and its Tuning does. Linked into one shared object they were a textbook ODR
+// violation: the linker keeps ONE copy of each inline constructor and
+// destructor, and whichever library lost then operated on the other's layout.
+// It surfaced as a SIGSEGV reading a double (0x4089000000000000) as a
+// std::string pointer, four frames inside SurgeStorage's constructor.
+//
+// Renaming this copy's namespace makes the two sets of symbols distinct. The
+// alias keeps sfizz's own sources compiling unchanged -- it is a compile-time
+// name only and emits nothing.
+namespace Tunings = TuningsSfz;
